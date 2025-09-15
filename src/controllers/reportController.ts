@@ -11,7 +11,7 @@ const querySchema = z.object({
   idStart: z.string().optional(),
   idEnd: z.string().optional(),
   asOf: z.string().optional(), // ISO
-});
+}).strict();
 
 export const getTenureReport = (req: Request, res: Response) => {
   const parsed = querySchema.safeParse(req.query);

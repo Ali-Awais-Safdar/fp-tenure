@@ -1,3 +1,4 @@
+import * as O from 'fp-ts/Option';
 import {
   parseIsoSafe,
   inDepartments,
@@ -14,20 +15,23 @@ describe('reportUtils', () => {
   describe('parseIsoSafe', () => {
     it('should parse valid ISO date string', () => {
       const result = parseIsoSafe('2023-01-15');
-      expect(result).toBeInstanceOf(Date);
-      expect(result?.getFullYear()).toBe(2023);
-      expect(result?.getMonth()).toBe(0); // January
-      expect(result?.getDate()).toBe(15);
+      expect(O.isSome(result)).toBe(true);
+      if (O.isSome(result)) {
+        expect(result.value).toBeInstanceOf(Date);
+        expect(result.value.getFullYear()).toBe(2023);
+        expect(result.value.getMonth()).toBe(0); // January
+        expect(result.value.getDate()).toBe(15);
+      }
     });
 
-    it('should return null for invalid date string', () => {
+    it('should return None for invalid date string', () => {
       const result = parseIsoSafe('invalid-date');
-      expect(result).toBeNull();
+      expect(O.isNone(result)).toBe(true);
     });
 
-    it('should return null for empty string', () => {
+    it('should return None for empty string', () => {
       const result = parseIsoSafe('');
-      expect(result).toBeNull();
+      expect(O.isNone(result)).toBe(true);
     });
   });
 

@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import type { Either } from 'fp-ts/Either';
 import { employees } from '../models/employees';
 import type { Employee, Department } from '../models/employees';
@@ -27,15 +28,14 @@ export const createReportService = (deps: { now: () => Date }) => {
     filters: ReportFilters
   ): Either<DomainError, TenureReport> => {
     // boundary validation -> Result/Either (no exceptions bubbling)
-    const asOf = filters.asOf ? parseIsoSafe(filters.asOf) : deps.now();
-    if (!asOf) return E.left({ tag: 'BadInput', message: 'Invalid asOf date' });
+    const asOfOption = filters.asOf ? parseIsoSafe(filters.asOf) : O.some(deps.now());
+    if (O.isNone(asOfOption)) return E.left({ tag: 'BadInput', message: 'Invalid asOf date' });
+    const asOf = asOfOption.value;
 
     // declarative filter pipeline (currying + composition)
-    const filtered = R.pipe(
+    const filtered: ReadonlyArray<Employee> = R.pipe(
       R.filter(inDepartments(filters.departments) as (e: Employee) => boolean),
-      R.filter(
-        betweenIds(filters.idStart, filters.idEnd) as (e: Employee) => boolean
-      )
+      R.filter(betweenIds(filters.idStart, filters.idEnd) as (e: Employee) => boolean)
     )(employees);
 
     const tenures = pickTenures(asOf)(filtered);

@@ -24,7 +24,7 @@ export interface Employee {
   managerId: string | null; // id of the manager or null
 }
 
-export const employees: Employee[] = [
+export const employees: ReadonlyArray<Employee> = [
   // --- Managers / Leads ---
   {
     id: 'EMP0001',
